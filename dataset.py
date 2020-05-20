@@ -3,14 +3,13 @@ import random
 import torch
 from torch_geometric.data import Data as PyGSingleGraphData
 
-
 class TextDataset(object):
-    def __init__(self, name, nx_graph, labels, vocab, word_id_map, docs_dict, loaded_dict, tvt='all'):
+    def __init__(self, name, sparse_graph, labels, vocab, word_id_map, docs_dict, loaded_dict, tvt='all'):
         if loaded_dict is not None:  # restore from content loaded from disk
             self.__dict__ = loaded_dict
             return
         self.name = name
-        self.graph = nx_graph
+        self.graph = sparse_graph
         self.labels = labels
         if 'twitter_asian_prejudice' in name:
             self.labels = ['discussion_of_eastasian_prejudice' if label =='counter_speech' else label for label in self.labels]
@@ -55,7 +54,7 @@ class TextDataset(object):
 
     def init_node_feats(self, type, device):
         if type == 'one_hot_init':
-            num_nodes = self.graph.number_of_nodes()
+            num_nodes = self.graph.shape[0]
             self.node_feats = torch.matrix_power(torch.zeros(num_nodes, num_nodes,
                                                              device=device, requires_grad=False), 0)
         else:
@@ -63,13 +62,15 @@ class TextDataset(object):
 
     def get_pyg_graph(self, device):
         if not hasattr(self, "pyg_graph"):
+            adj = self.graph
+            A = adj.tocoo()
+            row = torch.from_numpy(A.row).to(torch.long).to(device)
+            col = torch.from_numpy(A.col).to(torch.long).to(device)
+            edge_index = torch.stack([row, col], dim=0)
+            edge_weight = torch.from_numpy(A.data).to(torch.float).to(device)
             if type(self.node_feats) is not torch.Tensor:
                 gx = torch.tensor(self.node_feats, dtype=torch.float32, device=device)
             else:
                 gx = self.node_feats
-            edge_index = torch.tensor(sorted(list(self.graph.edges)),
-                                      device=device).t().contiguous()
-            edge_weights = torch.tensor([edge[2]['weight'] for edge in sorted(self.graph.edges.data())],
-                                        device=device)
-            self.pyg_graph = PyGSingleGraphData(x=gx, edge_index=edge_index, edge_attr=edge_weights, y=None)
+            self.pyg_graph = PyGSingleGraphData(x=gx, edge_index=edge_index, edge_attr=edge_weight, y=None)
         return self.pyg_graph

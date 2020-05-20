@@ -5,11 +5,12 @@ from torch_geometric.nn import GCNConv, GINConv, GATConv
 
 
 class TextGNN(nn.Module):
-    def __init__(self, pred_type, node_embd_type, num_layers, layer_dim_list, act, bn, num_labels):
+    def __init__(self, pred_type, node_embd_type, num_layers, layer_dim_list, act, bn, num_labels, class_weights, dropout):
         super(TextGNN, self).__init__()
         self.node_embd_type = node_embd_type
         self.layer_dim_list = layer_dim_list
         self.num_layers = num_layers
+        self.dropout = dropout
         if pred_type == 'softmax':
             assert layer_dim_list[-1] == num_labels
         elif pred_type == 'mlp':
@@ -20,7 +21,7 @@ class TextGNN(nn.Module):
         self.act = act
         self.bn = bn
         self.layers = self._create_node_embd_layers()
-        self.loss = nn.CrossEntropyLoss()
+        self.loss = nn.CrossEntropyLoss(weight=class_weights)
 
     def forward(self, pyg_graph, dataset):
         acts = [pyg_graph.x]
@@ -41,7 +42,7 @@ class TextGNN(nn.Module):
             raise NotImplementedError
         y_true = torch.tensor(dataset.label_inds[pred_inds], dtype=torch.long, device=FLAGS.device)
         loss = self.loss(y_preds, y_true)
-        return loss, y_preds.detach().numpy()
+        return loss, y_preds.cpu().detach().numpy()
 
     def _create_node_embd_layers(self):
         layers = nn.ModuleList()
@@ -52,7 +53,8 @@ class TextGNN(nn.Module):
                 in_dim=self.layer_dim_list[i],
                 out_dim=self.layer_dim_list[i + 1],
                 act=act,
-                bn=self.bn
+                bn=self.bn,
+                dropout=self.dropout
             ))
         return layers
 
@@ -67,10 +69,11 @@ class TextGNN(nn.Module):
 
 
 class NodeEmbedding(nn.Module):
-    def __init__(self, type, in_dim, out_dim, act, bn):
+    def __init__(self, type, in_dim, out_dim, act, bn, dropout):
         super(NodeEmbedding, self).__init__()
         self.in_dim = in_dim
         self.out_dim = out_dim
+        self.type = type
         if type == 'gcn':
             self.conv = GCNConv(in_dim, out_dim)
             self.act = create_act(act, out_dim)
@@ -90,8 +93,14 @@ class NodeEmbedding(nn.Module):
         self.bn = bn
         if self.bn:
             self.bn = torch.nn.BatchNorm1d(out_dim)
+        self.dropout = dropout
+        if dropout:
+            self.dropout = torch.nn.Dropout()
+
 
     def forward(self, ins, pyg_graph):
+        if self.dropout:
+            ins = self.dropout(ins)
         if self.type == 'gcn':
             x = self.conv(ins, pyg_graph.edge_index, edge_weight=pyg_graph.edge_attr)
         else:

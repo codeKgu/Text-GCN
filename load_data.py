@@ -12,9 +12,9 @@ def load_data():
     train_ratio = int(FLAGS.tvt_ratio[0] * 100)
     val_ratio = int(FLAGS.tvt_ratio[1] * 100)
     test_ratio = 100 - train_ratio - val_ratio
-    save_fn = '{}_train_{}_val_{}_test_{}_seed_{}'.format(dataset_name, train_ratio,
+    save_fn = '{}_train_{}_val_{}_test_{}_seed_{}_window_size_{}'.format(dataset_name, train_ratio,
                                                           val_ratio, test_ratio,
-                                                          FLAGS.random_seed)
+                                                          FLAGS.random_seed, FLAGS.word_window_size)
     path = join(dir, save_fn)
     rtn = load(path)
     if rtn:
@@ -27,12 +27,12 @@ def load_data():
 
 def _load_tvt_data_helper():
     dir = join(get_save_path(), 'all')
-    path = join(dir, FLAGS.dataset + '_all')
+    path = join(dir, FLAGS.dataset + '_all_window_' + str(FLAGS.word_window_size))
     rtn = load(path)
     if rtn:
-        dataset = TextDataset(None, None, None, None, None, rtn)
+        dataset = TextDataset(None, None, None, None, None, None, rtn)
     else:
-        dataset = build_text_graph_dataset(FLAGS.dataset)
+        dataset = build_text_graph_dataset(FLAGS.dataset, FLAGS.word_window_size)
         gc.collect()
         save(dataset.__dict__, path)
 

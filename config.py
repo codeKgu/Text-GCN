@@ -6,14 +6,14 @@ import argparse
 import torch
 
 parser = argparse.ArgumentParser()
-# COMET_ML_APP_KEY = #YOUR API KEY
+COMET_ML_APP_KEY = 'XR1bHdikUQC1zRRwtNaQP2huV'
 
 """
 Most Relevant
 """
 
 debug = False
-gpu = 7 if "ken" not in get_user() else -1
+gpu = -1 if "ken" not in get_user() else -1
 use_comet_ml = True if importlib.util.find_spec('comet_ml') and not debug else False
 parser.add_argument('--use_comet_ml', default=use_comet_ml)
 
@@ -26,10 +26,15 @@ Data.
 
 """ 
 dataset:
-    ap
+    twitter_asian_prejudice
 """
-# dataset = 'twitter_asian_prejudice'
-dataset = 'twitter_asian_prejudice_small'
+dataset = 'twitter_asian_prejudice'
+# dataset = 'r8'
+# dataset = 'twitter_asian_prejudice_small'
+if 'twitter_asian_prejudice' in dataset:
+    num_labels = 4
+elif 'r8' in dataset:
+    num_labels = 8
 
 parser.add_argument('--dataset', default=dataset)
 parser.add_argument('--random_seed', default=3)
@@ -41,31 +46,44 @@ Model. Pt1
 
 model = "text_gcn"
 
-
+model_params = {}
 parser.add_argument('--init_type', default='one_hot_init')
 if model == 'text_gcn':
     n = '--model'
-    pred_type = 'mlp'
+    pred_type = 'softmax'
     node_embd_type = 'gcn'
-    num_layers = 2
-    layer_dim_list = [200, 4]
-    s = 'TextGNN:pred_type={},node_embd_type={},num_layers={},layer_dim_list={},act={}'.format(
-        pred_type, node_embd_type, num_layers, "_".join([str(i) for i in layer_dim_list]), 'relu'
+    layer_dim_list = [200, num_labels]
+    num_layers = len(layer_dim_list)
+    class_weights = False
+    dropout = True
+    s = 'TextGNN:pred_type={},node_embd_type={},num_layers={},layer_dim_list={},act={},' \
+        'dropout={},class_weights={}'.format(
+        pred_type, node_embd_type, num_layers, "_".join([str(i) for i in layer_dim_list]), 'relu', dropout, class_weights
     )
+    model_params = {
+        'pred_type': pred_type,
+        'node_embd':  node_embd_type,
+        'layer_dims': layer_dim_list,
+        'class_weights': class_weights,
+        'dropout': dropout
+    }
     parser.add_argument(n, default=s)
 else:
     raise NotImplementedError
 
+print("{}: {}\n".format(model, model_params))
 """
 Sampling
 """
-validation_window_size = 10
+word_window_size = 15
+parser.add_argument('--word_window_size', default=word_window_size)
+validation_window_size = 20
 
 """
 Validation
 """
 parser.add_argument("--validation_window_size", default=validation_window_size)
-parser.add_argument("--validation_metric", default="accuracy",
+parser.add_argument("--validation_metric", default="loss",
                     choices=["f1", "accuracy", "loss"])
 # iters_per_validation = -1
 iters_per_validation = 100 if not debug else 5
@@ -83,18 +101,11 @@ parser.add_argument('--tvt_list', default=["train", "test", "val"])
 # max_eval_pairs = None
 
 
-c = C()
-
-D = 64
-node_embed_layers_num = 5
-node_embed_type = 'gat'
-bn = True
-
 """
 Optimization.
 """
 
-lr = 1e-3
+lr = 3e-2
 parser.add_argument('--lr', type=float, default=lr)
 
 
@@ -106,7 +117,7 @@ parser.add_argument('--device', default=device)
 # parser.add_argument('--num_epochs', type=int, default=num_epochs)
 
 
-num_epochs = 200
+num_epochs = 400
 num_epochs = 2 if debug else num_epochs
 parser.add_argument('--num_epochs', type=int, default=num_epochs)
 
@@ -133,9 +144,9 @@ if FLAGS.use_comet_ml:
     hyper_params = vars(FLAGS)
     COMET_EXPERIMENT = Experiment(api_key=COMET_ML_APP_KEY, project_name="textgcn")
     COMET_EXPERIMENT.log_parameters(hyper_params)
+    COMET_EXPERIMENT.log_parameters(model_params)
     print("Experiment url, ", COMET_EXPERIMENT.url)
     COMET_EXPERIMENT.add_tag(FLAGS.dataset)
-    COMET_EXPERIMENT.add_tag(FLAGS.model)
 
 
 

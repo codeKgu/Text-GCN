@@ -9,17 +9,20 @@ from os.path import join, exists
 from tqdm import tqdm
 
 
-def build_text_graph_dataset(dataset):
+def build_text_graph_dataset(dataset, window_size):
     if "small" in dataset:
         dataset_name = "_".join(dataset.split("_")[:-1])
     else:
         dataset_name = dataset
     clean_text_path = join(get_corpus_path(), dataset_name + '_sentences_clean.txt')
     labels_path = join(get_corpus_path(), dataset_name + '_labels.txt')
-    labels = pd.read_csv(labels_path, header=None)
+    labels = pd.read_csv(labels_path, header=None, sep='\t')
     text = pd.read_csv(clean_text_path, header=None)
     doc_list = text.iloc[0:, 0].tolist()
-    labels_list = labels.iloc[0:, 0].tolist()
+    if dataset != 'r8':
+        labels_list = labels.iloc[0:, 0].tolist()
+    else:
+        labels_list = labels.iloc[0:, 2].tolist()
     if "small" in dataset:
         doc_list = doc_list[:200]
         labels_list = labels_list[:200]
@@ -34,9 +37,9 @@ def build_text_graph_dataset(dataset):
     words_in_docs, word_doc_freq = build_word_doc_edges(doc_list)
     word_id_map = {word: i for i, word in enumerate(vocab)}
 
-    nx_graph = build_edges(doc_list, word_id_map, vocab, word_doc_freq)
+    sparse_graph = build_edges(doc_list, word_id_map, vocab, word_doc_freq, window_size)
     docs_dict = {i: doc for i, doc in enumerate(doc_list)}
-    return TextDataset(dataset, nx_graph, labels_list, vocab, word_id_map, docs_dict, None)
+    return TextDataset(dataset, sparse_graph, labels_list, vocab, word_id_map, docs_dict, None)
 
 
 def build_edges(doc_list, word_id_map, vocab, word_doc_freq, window_size=20):
@@ -68,6 +71,7 @@ def build_edges(doc_list, word_id_map, vocab, word_doc_freq, window_size=20):
                 if word_i_id == word_j_id:
                     continue
                 word_pair_count[(word_i_id, word_j_id)] += 1
+                word_pair_count[(word_j_id, word_i_id)] += 1
     row = []
     col = []
     weight = []
@@ -112,8 +116,8 @@ def build_edges(doc_list, word_id_map, vocab, word_doc_freq, window_size=20):
 
     number_nodes = num_docs + len(vocab)
     adj_mat = sp.csr_matrix((weight, (row, col)), shape=(number_nodes, number_nodes))
-    nx_graph = nx.from_scipy_sparse_matrix(adj_mat)
-    return nx_graph
+    adj = adj_mat + adj_mat.T.multiply(adj_mat.T > adj_mat) - adj_mat.multiply(adj_mat.T > adj_mat)
+    return adj
 
 
 def get_vocab(text_list):
@@ -121,7 +125,7 @@ def get_vocab(text_list):
     for doc_words in text_list:
         words = doc_words.split()
         for word in words:
-            word_freq[word] = 1
+            word_freq[word] += 1
     return word_freq
 
 
@@ -141,5 +145,5 @@ def build_word_doc_edges(doc_list):
 
 
 if __name__ == "__main__":
-    dataset = 'ap'
-    build_text_graph_dataset(dataset)
+    dataset = 'r8'
+    build_text_graph_dataset(dataset, 20)
