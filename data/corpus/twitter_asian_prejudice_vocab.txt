@@ -1,4 +1,3 @@
-0
 cnn
 doubt
 china
@@ -1503,6 +1502,7 @@ meet
 lower
 reacting
 faster
+0
 72
 83
 69

@@ -12,9 +12,12 @@ def load_data():
     train_ratio = int(FLAGS.tvt_ratio[0] * 100)
     val_ratio = int(FLAGS.tvt_ratio[1] * 100)
     test_ratio = 100 - train_ratio - val_ratio
-    save_fn = '{}_train_{}_val_{}_test_{}_seed_{}_window_size_{}'.format(dataset_name, train_ratio,
-                                                          val_ratio, test_ratio,
-                                                          FLAGS.random_seed, FLAGS.word_window_size)
+    if 'presplit' not in dataset_name:
+        save_fn = '{}_train_{}_val_{}_test_{}_seed_{}_window_size_{}'.format(dataset_name, train_ratio,
+                                                              val_ratio, test_ratio,
+                                                              FLAGS.random_seed, FLAGS.word_window_size)
+    else:
+        save_fn = '{}_train_val_test_{}_window_size_{}'.format(dataset_name, FLAGS.random_seed, FLAGS.word_window_size)
     path = join(dir, save_fn)
     rtn = load(path)
     if rtn:

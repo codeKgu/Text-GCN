@@ -10,19 +10,28 @@ from tqdm import tqdm
 
 
 def build_text_graph_dataset(dataset, window_size):
-    if "small" in dataset:
+    if "small" in dataset or "presplit" in dataset:
         dataset_name = "_".join(dataset.split("_")[:-1])
     else:
         dataset_name = dataset
     clean_text_path = join(get_corpus_path(), dataset_name + '_sentences_clean.txt')
     labels_path = join(get_corpus_path(), dataset_name + '_labels.txt')
     labels = pd.read_csv(labels_path, header=None, sep='\t')
-    text = pd.read_csv(clean_text_path, header=None)
-    doc_list = text.iloc[0:, 0].tolist()
-    if dataset != 'r8':
+    doc_list = []
+    f = open(clean_text_path, 'rb')
+    for line in f.readlines():
+        doc_list.append(line.strip().decode())
+    f.close()
+    assert len(labels) == len(doc_list)
+    if 'presplit' not in dataset:
         labels_list = labels.iloc[0:, 0].tolist()
+        split_dict = None
     else:
         labels_list = labels.iloc[0:, 2].tolist()
+        split = labels.iloc[0:, 1].tolist()
+        split_dict = {}
+        for i, v in enumerate(split):
+            split_dict[i] = v
     if "small" in dataset:
         doc_list = doc_list[:200]
         labels_list = labels_list[:200]
@@ -39,7 +48,8 @@ def build_text_graph_dataset(dataset, window_size):
 
     sparse_graph = build_edges(doc_list, word_id_map, vocab, word_doc_freq, window_size)
     docs_dict = {i: doc for i, doc in enumerate(doc_list)}
-    return TextDataset(dataset, sparse_graph, labels_list, vocab, word_id_map, docs_dict, None)
+    return TextDataset(dataset, sparse_graph, labels_list, vocab, word_id_map, docs_dict, None,
+                       train_test_split=split_dict)
 
 
 def build_edges(doc_list, word_id_map, vocab, word_doc_freq, window_size=20):
@@ -145,5 +155,5 @@ def build_word_doc_edges(doc_list):
 
 
 if __name__ == "__main__":
-    dataset = 'r8'
+    dataset = 'twitter_asian_prejudice'
     build_text_graph_dataset(dataset, 20)

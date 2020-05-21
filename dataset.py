@@ -4,7 +4,8 @@ import torch
 from torch_geometric.data import Data as PyGSingleGraphData
 
 class TextDataset(object):
-    def __init__(self, name, sparse_graph, labels, vocab, word_id_map, docs_dict, loaded_dict, tvt='all'):
+    def __init__(self, name, sparse_graph, labels, vocab, word_id_map, docs_dict, loaded_dict, tvt='all',
+                 train_test_split=None):
         if loaded_dict is not None:  # restore from content loaded from disk
             self.__dict__ = loaded_dict
             return
@@ -20,10 +21,26 @@ class TextDataset(object):
         self.docs = docs_dict
         self.node_ids = list(self.docs.keys())
         self.tvt = tvt
-
+        self.train_test_split = train_test_split
 
     def tvt_split(self, split_points, tvt_list, seed):
-        doc_id_chunks = self._chunk_doc_ids(split_points, seed)
+        if self.train_test_split is None:
+            doc_id_chunks = self._chunk_doc_ids(split_points, seed)
+        else:
+            train_ids = []
+            test_ids = []
+            for k, v in self.train_test_split.items():
+                if v == 'test':
+                    test_ids.append(k)
+                elif v == 'train':
+                    train_ids.append(k)
+                else:
+                    raise ValueError
+            num_val = int(len(train_ids) * 0.1)
+            random.Random(seed).shuffle(train_ids)
+            val_ids = train_ids[:num_val]
+            train_ids = train_ids[num_val:]
+            doc_id_chunks = [train_ids, val_ids, test_ids]
         sub_dataset = []
         for i, chunk in enumerate(doc_id_chunks):
             docs = {doc_id: self.docs[doc_id] for doc_id in chunk}

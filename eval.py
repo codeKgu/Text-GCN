@@ -2,7 +2,7 @@ import numpy as np
 from sklearn import metrics
 
 
-def eval(preds, dataset):
+def eval(preds, dataset, test=False):
     y_true = dataset.label_inds[dataset.node_ids]
     y_pred_label = [np.argmax(pred) for pred in preds]
     accuracy = metrics.accuracy_score(y_true, y_pred_label)
@@ -26,6 +26,9 @@ def eval(preds, dataset):
                "recall_macro": recall_macro,
                "recall_micro": recall_micro
                }
+    if test:
+        confusion_matrix = metrics.confusion_matrix(y_true, y_pred_label)
+        results["confusion_matrix"] = confusion_matrix
     return results
 
 

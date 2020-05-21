@@ -14,7 +14,7 @@ Most Relevant
 
 debug = False
 gpu = -1 if "ken" not in get_user() else -1
-use_comet_ml = True if importlib.util.find_spec('comet_ml') and not debug else False
+use_comet_ml = False if importlib.util.find_spec('comet_ml') and not debug else False
 parser.add_argument('--use_comet_ml', default=use_comet_ml)
 
 if use_comet_ml:
@@ -28,10 +28,11 @@ Data.
 dataset:
     twitter_asian_prejudice
 """
-dataset = 'twitter_asian_prejudice'
-# dataset = 'r8'
+# dataset = 'twitter_asian_prejudice'
+# dataset = 'r8_presplit'
+dataset = 'ag_presplit'
 # dataset = 'twitter_asian_prejudice_small'
-if 'twitter_asian_prejudice' in dataset:
+if 'twitter_asian_prejudice' in dataset or 'ag' in dataset:
     num_labels = 4
 elif 'r8' in dataset:
     num_labels = 8
@@ -75,7 +76,7 @@ print("{}: {}\n".format(model, model_params))
 """
 Sampling
 """
-word_window_size = 15
+word_window_size = 10
 parser.add_argument('--word_window_size', default=word_window_size)
 validation_window_size = 20
 
@@ -84,7 +85,7 @@ Validation
 """
 parser.add_argument("--validation_window_size", default=validation_window_size)
 parser.add_argument("--validation_metric", default="loss",
-                    choices=["f1", "accuracy", "loss"])
+                    choices=["f1_weighted", "accuracy", "loss"])
 # iters_per_validation = -1
 iters_per_validation = 100 if not debug else 5
 parser.add_argument("--iters_per_validation", default=iters_per_validation) # if -1 then based on epochs
@@ -105,7 +106,7 @@ parser.add_argument('--tvt_list', default=["train", "test", "val"])
 Optimization.
 """
 
-lr = 3e-2
+lr = 2e-2
 parser.add_argument('--lr', type=float, default=lr)
 
 
@@ -117,7 +118,7 @@ parser.add_argument('--device', default=device)
 # parser.add_argument('--num_epochs', type=int, default=num_epochs)
 
 
-num_epochs = 400
+num_epochs = 200
 num_epochs = 2 if debug else num_epochs
 parser.add_argument('--num_epochs', type=int, default=num_epochs)
 

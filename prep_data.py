@@ -25,12 +25,29 @@ def clean_data(dataset):
             for word in words:
                 word_counts[word] += 1
         clean_docs = clean_documents(docs_list, word_counts, dataset)
-        clean_text_df = pd.DataFrame(clean_docs)
-        clean_text_df.to_csv(clean_text_path, index=False)
-    clean_text_df = pd.read_csv(clean_text_path)
-    split_clean_text = clean_text_df.iloc[:, 0].apply(func=lambda x: len(x.split()))
-    print("sentence length statistics")
-    print(split_clean_text.describe())
+        corpus_str = '\n'.join(clean_docs)
+        f = open(clean_text_path, 'w')
+        f.write(corpus_str)
+        f.close()
+    f = open(clean_text_path, 'r')
+    # f = open('data/wiki_long_abstracts_en_text.txt', 'r')
+    lines = f.readlines()
+    min_len = 10000
+    aver_len = 0
+    max_len = 0
+    for line in lines:
+        line = line.strip()
+        temp = line.split()
+        aver_len = aver_len + len(temp)
+        if len(temp) < min_len:
+            min_len = len(temp)
+        if len(temp) > max_len:
+            max_len = len(temp)
+    f.close()
+    aver_len = 1.0 * aver_len / len(lines)
+    print('min_len : ' + str(min_len))
+    print('max_len : ' + str(max_len))
+    print('average_len : ' + str(aver_len))
 
 
 def clean_documents(docs, word_counts, dataset):
@@ -66,13 +83,16 @@ def clean_doc(string, dataset):
     if dataset == 'twitter_asian_prejudice':
         string = clean_doc_ap(string)
     else:
-        raise NotImplementedError
+        pass
+    string = re.sub(r"^\"", "", string)
+    string = re.sub(r"\"$", "", string)
     string = re.sub(r"\'s", " \'s", string)
     string = re.sub(r"\'ve", " \'ve", string)
     string = re.sub(r"n\'t", " n\'t", string)
     string = re.sub(r"\'re", " \'re", string)
     string = re.sub(r"\'d", " \'d", string)
     string = re.sub(r"\'ll", " \'ll", string)
+    string = re.sub(r"\.", " \. ", string)
     string = re.sub(r",", " , ", string)
     string = re.sub(r"!", " ! ", string)
     string = re.sub(r"\(", " \( ", string)
@@ -83,5 +103,5 @@ def clean_doc(string, dataset):
 
 
 if __name__ == "__main__":
-    dataset = 'twitter_asian_prejudice'
+    dataset = 'ag'
     clean_data(dataset)
