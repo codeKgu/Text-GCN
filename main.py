@@ -10,6 +10,7 @@ from train import train
 def main():
     saver = Saver()
     train_data, val_data, test_data = load_data()
+    print(train_data.graph.shape)
     if COMET_EXPERIMENT:
         with COMET_EXPERIMENT.train():
             saved_model, model = train(train_data, val_data, test_data, saver)

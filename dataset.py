@@ -2,6 +2,7 @@ import numpy as np
 import random
 import torch
 from torch_geometric.data import Data as PyGSingleGraphData
+import scipy.sparse as sp
 
 class TextDataset(object):
     def __init__(self, name, sparse_graph, labels, vocab, word_id_map, docs_dict, loaded_dict, tvt='all',
@@ -72,8 +73,11 @@ class TextDataset(object):
     def init_node_feats(self, type, device):
         if type == 'one_hot_init':
             num_nodes = self.graph.shape[0]
-            self.node_feats = torch.matrix_power(torch.zeros(num_nodes, num_nodes,
-                                                             device=device, requires_grad=False), 0)
+            identity = sp.identity(num_nodes)
+            ind0, ind1, values = sp.find(identity)
+            inds = np.stack((ind0, ind1), axis=0)
+            self.node_feats = torch.sparse_coo_tensor(inds, values, device=device,
+                                                      dtype=torch.float)
         else:
             raise NotImplementedError
 
