@@ -4,7 +4,7 @@ from sklearn import metrics
 
 def eval(preds, dataset, test=False):
     y_true = dataset.label_inds[dataset.node_ids]
-    y_pred_label = [np.argmax(pred) for pred in preds]
+    y_pred_label = np.asarray([np.argmax(pred) for pred in preds])
     accuracy = metrics.accuracy_score(y_true, y_pred_label)
     f1_weighted = metrics.f1_score(y_true, y_pred_label, average='weighted')
     f1_macro = metrics.f1_score(y_true, y_pred_label, average='macro')
@@ -27,9 +27,12 @@ def eval(preds, dataset, test=False):
                "recall_micro": recall_micro
                }
     if test:
-        results["y_true"] = y_true
-        results["y_predicted"] = y_pred_label
-
+        one_hot_true = np.zeros((y_true.size, len(dataset.label_dict)))
+        one_hot_true[np.arange(y_true.size), y_true] = 1
+        results["y_true"] = one_hot_true
+        one_hot_pred = np.zeros((y_true.size, len(dataset.label_dict)))
+        one_hot_pred[np.arange(y_pred_label.size),y_pred_label] = 1
+        results["y_pred"] = one_hot_pred
     return results
 
 

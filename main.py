@@ -24,12 +24,12 @@ def main():
         from comet_ml.utils import ConfusionMatrix
         y_true = eval_res.pop('y_true')
         y_pred = eval_res.pop('y_pred')
-
         def index_to_example(index):
             test_docs_ids = test_data.node_ids
-            return test_data.docs[test_docs_ids[index]]
+            return "{}: {}".format(test_docs_ids[index], test_data.docs[test_docs_ids[index]])
 
-        confusion_matrix = ConfusionMatrix(index_to_example_function=index_to_example)
+        confusion_matrix = ConfusionMatrix(index_to_example_function=index_to_example,
+                                           labels=list(test_data.label_dict.keys()))
         confusion_matrix.compute_matrix(y_true, y_pred)
 
         with COMET_EXPERIMENT.test():

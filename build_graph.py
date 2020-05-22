@@ -53,6 +53,7 @@ def build_text_graph_dataset(dataset, window_size):
 
 
 def build_edges(doc_list, word_id_map, vocab, word_doc_freq, window_size=20):
+    # constructing all windows
     windows = []
     for doc_words in doc_list:
         words = doc_words.split()
@@ -63,6 +64,7 @@ def build_edges(doc_list, word_id_map, vocab, word_doc_freq, window_size=20):
             for i in range(doc_length - window_size + 1):
                 window = words[i: i + window_size]
                 windows.append(window)
+    # constructing all single word frequency
     word_window_freq = defaultdict(int)
     for window in windows:
         appeared = set()
@@ -70,6 +72,7 @@ def build_edges(doc_list, word_id_map, vocab, word_doc_freq, window_size=20):
             if word not in appeared:
                 word_window_freq[word] += 1
                 appeared.add(word)
+    # constructing word pair count frequency
     word_pair_count = defaultdict(int)
     for window in tqdm(windows):
         for i in range(1, len(window)):
@@ -101,7 +104,8 @@ def build_edges(doc_list, word_id_map, vocab, word_doc_freq, window_size=20):
         col.append(num_docs + j)
         weight.append(pmi)
 
-    doc_word_freq = defaultdict(int) # frequency of document word pair
+    # frequency of document word pair
+    doc_word_freq = defaultdict(int)
     for i, doc_words in enumerate(doc_list):
         words = doc_words.split()
         for word in words:

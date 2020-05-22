@@ -68,7 +68,8 @@ def clean_documents(docs, word_counts, dataset):
 
 
 def clean_doc_ap(string):
-    string = re.sub(r"[^A-Za-z0-9()_+,!?\'\`]", " ", string)  # replace all non alpha numeric characters
+    string = re.sub(r"http[s]?\:\/\/.[a-zA-Z0-9\.\/\_?=%&#\-\+!]+", " ", string)
+    string = re.sub(r"[^A-Za-z0-9()_+,!?:\'\`]", " ", string)  # replace all non alpha numeric characters
     string = re.sub(r"(?<!HASHTAG)_", " ", string)
     string = re.sub(r"(?<!EASTASIA)\+ | (?<!VIRUS)\+", " ", string)
     string = re.sub(r"\+", "_", string)
@@ -92,16 +93,18 @@ def clean_doc(string, dataset):
     string = re.sub(r"\'re", " \'re", string)
     string = re.sub(r"\'d", " \'d", string)
     string = re.sub(r"\'ll", " \'ll", string)
-    string = re.sub(r"\.", " \. ", string)
-    string = re.sub(r",", " , ", string)
-    string = re.sub(r"!", " ! ", string)
-    string = re.sub(r"\(", " \( ", string)
-    string = re.sub(r"\)", " \) ", string)
-    string = re.sub(r"\?", " \? ", string)
+    string = re.sub(r"\.", " ", string)
+    string = re.sub(r",", " ", string)
+    string = re.sub(r"!", " ", string)
+    string = re.sub(r"\(", " ", string)
+    string = re.sub(r"\)", " ", string)
+    string = re.sub(r"\?", " ", string)
     string = re.sub(r"\s{2,}", " ", string)
     return string.strip().lower()
 
 
 if __name__ == "__main__":
-    dataset = 'ag'
+
+    dataset = 'twitter_asian_prejudice'
+    out = clean_doc('"😷before you wear n95 masks, you should look into getting a fit test. because unlike surgical masks, one size does not fit all for n95 masks. having best fit n95 for your face will ensure a good face seal for protection.  https://t.co/xm2maqsp8w  #HASHTAG HASHTAG_EASTASIA+VIRUS https://t.co/iiszmr3wgc"', dataset)
     clean_data(dataset)

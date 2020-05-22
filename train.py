@@ -10,6 +10,8 @@ def train(train_data, val_data, test_data, saver):
     val_data.init_node_feats(FLAGS.init_type, FLAGS.device)
     model = create_model(train_data)
     model = model.to(FLAGS.device)
+    pytorch_total_params = sum(p.numel() for p in model.parameters())
+    print("Number params: ", pytorch_total_params)
     moving_avg = MovingAverage(FLAGS.validation_window_size, FLAGS.validation_metric != 'loss')
     pyg_graph = train_data.get_pyg_graph(FLAGS.device)
     optimizer = torch.optim.Adam(model.parameters(), lr=FLAGS.lr, )
