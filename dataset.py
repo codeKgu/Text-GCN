@@ -14,7 +14,18 @@ class TextDataset(object):
         self.graph = sparse_graph
         self.labels = labels
         if 'twitter_asian_prejudice' in name:
-            self.labels = ['discussion_of_eastasian_prejudice' if label =='counter_speech' else label for label in self.labels]
+            if 'sentiment' not in name:
+                self.labels = ['discussion_of_eastasian_prejudice' if label =='counter_speech' else label for label in self.labels]
+            else:
+                if 'neutral' not in labels:
+                    sentiment_labels = []
+                    neutral_pos_labels = ["none_of_the_above", "counter_speech", "discussion_of_eastasian_prejudice"]
+                    for label in labels:
+                        if label in neutral_pos_labels:
+                            sentiment_labels.append("neutral")
+                        else:
+                            sentiment_labels.append("negative")
+                    self.labels = sentiment_labels
         self.label_dict = {label: i for i, label in enumerate(list(set(self.labels)))}
         self.label_inds = np.asarray([self.label_dict[label] for label in self.labels])
         self.vocab = vocab
@@ -95,3 +106,5 @@ class TextDataset(object):
                 gx = self.node_feats
             self.pyg_graph = PyGSingleGraphData(x=gx, edge_index=edge_index, edge_attr=edge_weight, y=None)
         return self.pyg_graph
+
+

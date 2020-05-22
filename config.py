@@ -14,7 +14,7 @@ Most Relevant
 
 debug = False
 gpu = -1 if "ken" not in get_user() else -1
-use_comet_ml = False if importlib.util.find_spec('comet_ml') and not debug else False
+use_comet_ml = True if importlib.util.find_spec('comet_ml') and not debug else False
 parser.add_argument('--use_comet_ml', default=use_comet_ml)
 
 if use_comet_ml:
@@ -29,10 +29,16 @@ dataset:
     twitter_asian_prejudice
 """
 # dataset = 'twitter_asian_prejudice'
+dataset = 'twitter_asian_prejudice_sentiment'
 # dataset = 'r8_presplit'
-dataset = 'ag_presplit'
+# dataset = 'ag_presplit'
 # dataset = 'twitter_asian_prejudice_small'
-if 'twitter_asian_prejudice' in dataset or 'ag' in dataset:
+if 'twitter_asian_prejudice' in dataset:
+    if 'sentiment' in dataset:
+        num_labels = 2
+    else:
+        num_labels = 4
+elif 'ag' in dataset:
     num_labels = 4
 elif 'r8' in dataset:
     num_labels = 8
@@ -48,6 +54,7 @@ Model. Pt1
 model = "text_gcn"
 
 model_params = {}
+parser.add_argument('--use_edge_weights', default=True)
 parser.add_argument('--init_type', default='one_hot_init')
 if model == 'text_gcn':
     n = '--model'
@@ -55,7 +62,7 @@ if model == 'text_gcn':
     node_embd_type = 'gcn'
     layer_dim_list = [200, num_labels]
     num_layers = len(layer_dim_list)
-    class_weights = False
+    class_weights = True
     dropout = True
     s = 'TextGNN:pred_type={},node_embd_type={},num_layers={},layer_dim_list={},act={},' \
         'dropout={},class_weights={}'.format(
@@ -84,7 +91,7 @@ validation_window_size = 20
 Validation
 """
 parser.add_argument("--validation_window_size", default=validation_window_size)
-parser.add_argument("--validation_metric", default="loss",
+parser.add_argument("--validation_metric", default="accuracy",
                     choices=["f1_weighted", "accuracy", "loss"])
 # iters_per_validation = -1
 iters_per_validation = 100 if not debug else 5
@@ -106,7 +113,7 @@ parser.add_argument('--tvt_list', default=["train", "test", "val"])
 Optimization.
 """
 
-lr = 2e-2
+lr = 1e-2
 parser.add_argument('--lr', type=float, default=lr)
 
 
@@ -118,7 +125,7 @@ parser.add_argument('--device', default=device)
 # parser.add_argument('--num_epochs', type=int, default=num_epochs)
 
 
-num_epochs = 200
+num_epochs = 3
 num_epochs = 2 if debug else num_epochs
 parser.add_argument('--num_epochs', type=int, default=num_epochs)
 

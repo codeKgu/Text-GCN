@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 
 def build_text_graph_dataset(dataset, window_size):
-    if "small" in dataset or "presplit" in dataset:
+    if "small" in dataset or "presplit" in dataset or 'sentiment' in dataset:
         dataset_name = "_".join(dataset.split("_")[:-1])
     else:
         dataset_name = dataset

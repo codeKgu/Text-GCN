@@ -27,8 +27,9 @@ def eval(preds, dataset, test=False):
                "recall_micro": recall_micro
                }
     if test:
-        confusion_matrix = metrics.confusion_matrix(y_true, y_pred_label)
-        results["confusion_matrix"] = confusion_matrix
+        results["y_true"] = y_true
+        results["y_predicted"] = y_pred_label
+
     return results
 
 
