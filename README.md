@@ -1,4 +1,4 @@
-### Text-GCN PyTorch
+## Text-GCN PyTorch Implementation
 The implementation of Text GCN in Liang Yao, Chengsheng Mao, Yuan Luo. "Graph Convolutional Networks for Text Classification." In 33rd AAAI Conference on Artificial Intelligence (AAAI-19), 7370-7377.
 The task is text classification. 
 
