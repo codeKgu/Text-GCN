@@ -1,11 +1,13 @@
 from eval import eval, MovingAverage
 from config import FLAGS, COMET_EXPERIMENT
 from model_factory import create_model
-import torch
+
+from pprint import pprint
 import time
+import torch
 
 
-def train(train_data, val_data, test_data, saver):
+def train(train_data, val_data, saver):
     train_data.init_node_feats(FLAGS.init_type, FLAGS.device)
     val_data.init_node_feats(FLAGS.init_type, FLAGS.device)
     model = create_model(train_data)
@@ -32,7 +34,8 @@ def train(train_data, val_data, test_data, saver):
             eval_res_val = eval(preds_val, val_data)
             print("Epoch: {:04d}, Train Loss: {:.5f}, Time: {:.5f}".format(epoch, loss, time.time() - t))
             print("Val Loss: {:.5f}".format(val_loss))
-            print("Val Results: {}\n\n".format(eval_res_val))
+            print("Val Results: ...")
+            pprint(eval_res_val)
             eval_res_val["loss"] = val_loss
             if COMET_EXPERIMENT:
                 COMET_EXPERIMENT.log_metrics(eval_res_val, prefix="validation", step=epoch+1)

@@ -1,14 +1,10 @@
+from utils import get_data_path
+
 from collections import defaultdict
 from nltk.corpus import stopwords
 import nltk
-from nltk.wsd import lesk
-from nltk.corpus import wordnet as wn
-from utils import get_data_path
 from os.path import join, exists
-import pandas as pd
 import re
-
-hash_tag_words = ['hashtag_eastasia', 'hashtag', 'hashtag_eastasia_virus', 'hashtag_virus', 'hashtag_virus_othercountry']
 
 
 def clean_data(dataset):
@@ -30,7 +26,6 @@ def clean_data(dataset):
         f.write(corpus_str)
         f.close()
     f = open(clean_text_path, 'r')
-    # f = open('data/wiki_long_abstracts_en_text.txt', 'r')
     lines = f.readlines()
     min_len = 10000
     aver_len = 0
@@ -79,6 +74,7 @@ def clean_doc_ap(string):
     string = re.sub(r"HASHTAG_VIRUS_OTHERCOUNTRY(?!(\s))", "HASHTAG_VIRUS_OTHERCOUNTRY ", string)
     string = re.sub(r"HASHTAG(?!([\s|_]))", "HASHTAG ", string)
     return string
+
 
 def clean_doc(string, dataset):
     if dataset == 'twitter_asian_prejudice':

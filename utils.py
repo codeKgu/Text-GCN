@@ -1,11 +1,12 @@
 from collections import OrderedDict
+import datetime
 import klepto
 from os.path import dirname, abspath, join, expanduser, isfile, exists
 from os import environ, makedirs
-from socket import gethostname
-import datetime
 import pytz
 import re
+from socket import gethostname
+
 
 
 def get_root_path():
@@ -49,7 +50,6 @@ def save(obj, filepath, print_msg=True):
     save_klepto(obj, fp, print_msg)
 
 
-
 def create_dir_if_not_exists(dir):
     if not exists(dir):
         makedirs(dir)
@@ -80,6 +80,7 @@ def parse_as_int_list(il):
         rtn.append(x)
     return rtn
 
+
 def get_user():
     try:
         home_user = expanduser("~").split('/')[-1]
@@ -108,6 +109,7 @@ def get_current_ts(zone='US/Pacific'):
     return datetime.datetime.now(pytz.timezone(zone)).strftime(
         '%Y-%m-%dT%H-%M-%S.%f')
 
+
 def sorted_nicely(l, reverse=False):
     def tryint(s):
         try:
@@ -124,18 +126,3 @@ def sorted_nicely(l, reverse=False):
     if reverse:
         rtn = reversed(rtn)
     return rtn
-
-
-class C(object):  # counter
-    def __init__(self):
-        self.count = 0
-
-    def c(self):  # count and increment itself
-        self.count += 1
-        return self.count
-
-    def t(self):  # total
-        return self.count
-
-    def reset(self):
-        self.count = 0

@@ -1,14 +1,14 @@
 from config import FLAGS
+
 import torch.nn.functional as F
 import torch.nn as nn
-from torch_geometric.nn import GINConv
 import torch
 from torch.nn import Parameter
 from torch_scatter import scatter_add
 from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.utils import remove_self_loops, add_self_loops, softmax
-
 from torch_geometric.nn.inits import glorot, zeros
+
 
 class TextGNN(nn.Module):
     def __init__(self, pred_type, node_embd_type, num_layers, layer_dim_list, act, bn, num_labels, class_weights, dropout):
@@ -83,13 +83,6 @@ class NodeEmbedding(nn.Module):
         if type == 'gcn':
             self.conv = GCNConv(in_dim, out_dim)
             self.act = create_act(act, out_dim)
-        elif type == 'gin':
-            self.act = create_act(act, out_dim)
-            mlps = nn.Sequential(
-                nn.Linear(in_dim, out_dim),
-                self.act,
-                nn.Linear(out_dim, out_dim))
-            self.conv = GINConv(mlps)
         elif type == 'gat':
             self.conv = GATConv(in_dim, out_dim)
             self.act = create_act(act, out_dim)
@@ -102,7 +95,6 @@ class NodeEmbedding(nn.Module):
         self.dropout = dropout
         if dropout:
             self.dropout = torch.nn.Dropout()
-
 
     def forward(self, ins, pyg_graph):
         if self.dropout:
@@ -138,7 +130,6 @@ class MLP(nn.Module):
         self.bn = bn
         if self.bn:
             self.bn = torch.nn.BatchNorm1d(output_dim)
-
 
     def weight_init(self, m):
         torch.nn.init.xavier_uniform_(m.weight, gain=nn.init.calculate_gain('relu'))
@@ -282,7 +273,6 @@ class GCNConv(MessagePassing):
     def __repr__(self):
         return '{}({}, {})'.format(self.__class__.__name__, self.in_channels,
                                    self.out_channels)
-
 
 
 class GATConv(MessagePassing):

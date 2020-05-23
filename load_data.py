@@ -1,6 +1,6 @@
 from config import FLAGS
 from os.path import join
-from utils import get_save_path, load, save
+from utils import get_save_path, load, save, get_corpus_path
 from build_graph import build_text_graph_dataset
 from dataset import TextDataset
 import gc
@@ -25,7 +25,20 @@ def load_data():
     else:
         train_data, val_data, test_data = _load_tvt_data_helper()
         save({'train_data': train_data, 'val_data': val_data, 'test_data': test_data}, path)
-    return train_data, val_data, test_data
+    dataset = FLAGS.dataset
+    if "small" in dataset or "presplit" in dataset or 'sentiment' in dataset:
+        dataset_name = "_".join(dataset.split("_")[:-1])
+    else:
+        dataset_name = dataset
+
+    orig_text_path = join(get_corpus_path(), dataset_name + "_sentences.txt")
+    raw_doc_list = []
+    f = open(orig_text_path, 'rb')
+    for line in f.readlines():
+        raw_doc_list.append(line.strip().decode())
+    f.close()
+
+    return train_data, val_data, test_data, raw_doc_list
 
 
 def _load_tvt_data_helper():

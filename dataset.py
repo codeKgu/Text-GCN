@@ -4,6 +4,7 @@ import torch
 from torch_geometric.data import Data as PyGSingleGraphData
 import scipy.sparse as sp
 
+
 class TextDataset(object):
     def __init__(self, name, sparse_graph, labels, vocab, word_id_map, docs_dict, loaded_dict, tvt='all',
                  train_test_split=None):

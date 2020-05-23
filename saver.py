@@ -1,9 +1,10 @@
 from config import FLAGS
 from model_factory import create_model
 from utils import get_root_path, create_dir_if_not_exists, get_ts, save, sorted_nicely
+
+import glob
 from os.path import join, getctime
 import torch
-import glob
 
 
 class Saver(object):
