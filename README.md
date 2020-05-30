@@ -1,9 +1,9 @@
-### Text-GCN PyTorch
+## Text-GCN PyTorch Implementation
 The implementation of Text GCN in Liang Yao, Chengsheng Mao, Yuan Luo. "Graph Convolutional Networks for Text Classification." In 33rd AAAI Conference on Artificial Intelligence (AAAI-19), 7370-7377.
 The task is text classification. 
 
 For an introduction to the paper check out my [blog post](https://kenqgu.com/text-classification-with-graph-convolutional-networks/).
-Also checkout my [blog post]() about running experiments specifically for classifying tweets for asian prejudice during COVID-19. 
+Also checkout my [blog post](https://kenqgu.com/classifying-asian-prejudice-in-tweets-during-covid-19-using-graph-convolutional-networks/) about using Text GCN to classify tweets for asian prejudice during COVID-19. 
 ### Requirements
 This repo uses python 3.6 and the following PyTorch packages:
 
