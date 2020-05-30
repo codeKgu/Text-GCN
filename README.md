@@ -23,6 +23,9 @@ For a new dataset, prepare a `[dataset_name]_labels.txt` and `[dataset_name]_sen
 Use `prep_data.py` to further clean `[dataset_name]_sentences.txt`.
 The script will generate a  `[dataset_name]_sentences_clean.txt`
  
+The following is an example of the constructed text graph for the twitter dataset. Green represents text nodes and red represents document nodes.
+![twitter text graph](https://github.com/codeKgu/text-gcn/blob/master/data/text_graphs/twitter_text_graph_nohashtag.png)
+
 ### Running the model
 To run the model simply change the model and dataset configurations in `config.py`. You can also enter your own cometml information to see the results and experiment running in the browser. 
 After model configuration, simply run 
