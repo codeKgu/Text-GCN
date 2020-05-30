@@ -11,9 +11,13 @@ def clean_data(dataset):
     clean_text_path = join(get_data_path(), 'corpus', dataset + '_sentences_clean.txt')
     if not exists(clean_text_path):
         docs_list = []
+        old_name = dataset
+        if "no_hashtag" in dataset:
+            dataset = '_'.join(dataset.split('_')[:-2])
         with open(join(get_data_path(), 'corpus', dataset + '_sentences.txt')) as f:
             for line in f.readlines():
                 docs_list.append(line.strip())
+        dataset = old_name
         word_counts = defaultdict(int)
         for doc in docs_list:
             temp = clean_doc(doc, dataset)
@@ -73,11 +77,17 @@ def clean_doc_ap(string):
     string = re.sub(r"HASHTAG_VIRUS(?!(\s|_))", "HASHTAG_VIRUS ", string)
     string = re.sub(r"HASHTAG_VIRUS_OTHERCOUNTRY(?!(\s))", "HASHTAG_VIRUS_OTHERCOUNTRY ", string)
     string = re.sub(r"HASHTAG(?!([\s|_]))", "HASHTAG ", string)
+    if "no_hashtag" in dataset:
+        string = re.sub(r"HASHTAG_EASTASIA_VIRUS", " ", string)
+        string = re.sub(r"HASHTAG_EASTASIA", " ", string)
+        string = re.sub(r"HASHTAG_VIRUS", " ", string)
+        string = re.sub(r"HASHTAG_VIRUS_OTHERCOUNTRY", " ", string)
+        string = re.sub(r"HASHTAG", " ", string)
     return string
 
 
 def clean_doc(string, dataset):
-    if dataset == 'twitter_asian_prejudice':
+    if 'twitter_asian_prejudice' in dataset:
         string = clean_doc_ap(string)
     else:
         pass
@@ -101,6 +111,6 @@ def clean_doc(string, dataset):
 
 if __name__ == "__main__":
 
-    dataset = 'twitter_asian_prejudice'
+    dataset = 'twitter_asian_prejudice_no_hashtag'
     out = clean_doc('"😷before you wear n95 masks, you should look into getting a fit test. because unlike surgical masks, one size does not fit all for n95 masks. having best fit n95 for your face will ensure a good face seal for protection.  https://t.co/xm2maqsp8w  #HASHTAG HASHTAG_EASTASIA+VIRUS https://t.co/iiszmr3wgc"', dataset)
     clean_data(dataset)
