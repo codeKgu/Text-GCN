@@ -1,9 +1,24 @@
-## Text-GCN PyTorch Implementation
-The implementation of Text GCN in Liang Yao, Chengsheng Mao, Yuan Luo. "Graph Convolutional Networks for Text Classification." In 33rd AAAI Conference on Artificial Intelligence (AAAI-19), 7370-7377.
-The task is text classification. 
+## Text-GCN 
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/graph-convolutional-networks-for-text/text-classification-on-r8)](https://paperswithcode.com/sota/text-classification-on-r8?p=graph-convolutional-networks-for-text)
+[![codebeat badge](https://codebeat.co/badges/03853262-a233-4faa-911f-e03df5eda8fa)](https://codebeat.co/projects/github-com-codekgu-text-gcn-master)
+
+A PyTorch implementation of "Graph Convolutional Networks for Text Classification." (AAAI 2019)
+
+![text_gcn](text_gcn.png)
 
 For an introduction to the paper check out my [blog post](https://kenqgu.com/text-classification-with-graph-convolutional-networks/).
 Also checkout my [blog post](https://kenqgu.com/classifying-asian-prejudice-in-tweets-during-covid-19-using-graph-convolutional-networks/) about using Text GCN to classify tweets for asian prejudice during COVID-19. 
+### Abstract
+
+Text classification is an important and classical problem in natural language processing. There have been a number of studies that applied convolutional neural networks (convolution on regular grid, e.g., sequence) to classification. However, only a limited number of studies have explored the more flexible graph convolutional neural networks (convolution on non-grid, e.g., arbitrary graph) for the task. In this work, we propose to use graph convolutional networks for text classification. We build a single text graph for a corpus based on word co-occurrence and document word relations, then learn a Text Graph Convolutional Network (Text GCN) for the corpus. Our Text GCN is initialized with one-hot representation for word and document, it then jointly learns the embeddings for both words and documents, as supervised by the known class labels for documents. Our experimental results on multiple benchmark datasets demonstrate that a vanilla Text GCN without any external word embeddings or knowledge outperforms state-of-the-art methods for text classification. On the other hand, Text GCN also learns predictive word and document embeddings. In addition, experimental results show that the improvement of Text GCN over state-of-the-art comparison methods become more prominent as we lower the percentage of training data, suggesting the robustness of Text GCN to less training data in text classification.
+
+This repository contains a PyTorch implementation of 
+> Graph Convolutional Networks for Text Classification. 
+> Liang Yao, Chengsheng Mao, Yuan Luo.
+> AAAI, 2019. [\[Paper\]](https://arxiv.org/abs/1809.05679)
+
+A reference Tensorflow implementation is accessible [\[here\]](https://github.com/yao8839836/text_gcn).
+
 ### Requirements
 This repo uses python 3.6 and the following PyTorch packages:
 
