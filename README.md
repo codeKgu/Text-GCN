@@ -1,5 +1,6 @@
 ## Text-GCN 
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/graph-convolutional-networks-for-text/text-classification-on-r8)](https://paperswithcode.com/sota/text-classification-on-r8?p=graph-convolutional-networks-for-text)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![codebeat badge](https://codebeat.co/badges/03853262-a233-4faa-911f-e03df5eda8fa)](https://codebeat.co/projects/github-com-codekgu-text-gcn-master)
 
 A PyTorch implementation of "Graph Convolutional Networks for Text Classification." (AAAI 2019)
